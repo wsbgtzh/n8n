@@ -92,6 +92,11 @@ onBeforeMount(async () => {
 		props.credentialType.name,
 	);
 
+	if (!credTranslation) {
+		console.warn('No translation found for credential type:', props.credentialType.name);
+		return;
+	}
+
 	addCredentialTranslation(
 		{ [props.credentialType.name]: credTranslation },
 		rootStore.defaultLocale,
