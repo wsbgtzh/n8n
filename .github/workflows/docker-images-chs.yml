@@ -23,6 +23,8 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -31,7 +33,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push image to GHCR
+      - name: Login to DockerHub
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push multi-platform image to GHCR
         uses: docker/build-push-action@v6
         env:
           DOCKER_BUILD_SUMMARY: false
@@ -39,10 +47,13 @@ jobs:
           context: .
           file: ./docker/images/n8n/Dockerfile
           build-args: |
-            N8N_RELEASE_TYPE=production
-          platforms: linux/amd64
+            N8N_RELEASE_TYPE=stable
+          platforms: linux/amd64,linux/arm64
           provenance: false
+          sbom: false
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: ghcr.io/${{ github.repository_owner }}/n8n:${{ github.ref_name }}
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/n8n:${{ github.ref_name }}
+            ghcr.io/${{ github.repository_owner }}/n8n:${{ github.ref_name }}
