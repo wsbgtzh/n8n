@@ -95,7 +95,13 @@ export class OidcService {
 	async loginUser(callbackUrl: URL): Promise<User> {
 		const configuration = await this.getOidcConfiguration();
 
-		const tokens = await client.authorizationCodeGrant(configuration, callbackUrl);
+		// 清理URL参数，移除可能导致问题的参数
+		const cleanCallbackUrl = new URL(callbackUrl);
+		// 只保留必要的参数
+		const codeParam = cleanCallbackUrl.searchParams.get('code');
+		cleanCallbackUrl.search = `code=${codeParam}`;
+
+		const tokens = await client.authorizationCodeGrant(configuration, cleanCallbackUrl);
 
 		const claims = tokens.claims();
 
