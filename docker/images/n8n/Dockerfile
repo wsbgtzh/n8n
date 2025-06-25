@@ -46,7 +46,7 @@ COPY docker/images/n8n/docker-entrypoint.sh /
 
 # Setup the Task Runner Launcher
 ARG TARGETPLATFORM
-ARG LAUNCHER_VERSION=1.1.2
+ARG LAUNCHER_VERSION=1.1.3
 COPY docker/images/n8n/n8n-task-runners.json /etc/n8n-task-runners.json
 # Download, verify, then extract the launcher binary
 RUN \
@@ -70,6 +70,10 @@ RUN \
 	ln -s /usr/local/lib/node_modules/n8n/bin/n8n /usr/local/bin/n8n && \
 	mkdir .n8n && \
 	chown node:node .n8n
+
+# pdfjs-dist has an optional dependency on @napi-rs/canvas, which is required
+# for it to work.
+RUN cd /usr/local/lib/node_modules/n8n/node_modules/pdfjs-dist && npm install @napi-rs/canvas
 
 # Install npm 11.4.1 to fix the vulnerable cross-spawn dependency
 RUN npm install -g npm@11.4.1

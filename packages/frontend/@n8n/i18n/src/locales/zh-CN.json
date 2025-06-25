@@ -3220,5 +3220,8 @@
 	"settings.oidc.confirmMessage.beforeSaveForm.headline": "你确定要禁用 OIDC 登录吗？",
 	"settings.oidc.confirmMessage.beforeSaveForm.message": "如果你这么做，所有 OIDC 用户将转换为邮箱用户。",
 	"projects.settings.description": "项目描述",
-	"projects.settings.delete.message.empty": "该项目中没有任何工作流或凭据。"
+	"projects.settings.delete.message.empty": "该项目中没有任何工作流或凭据。",
+	"generic.upgradeToEnterprise": "升级到企业版",
+	"settings.log-streaming.eventGroup.n8n.queue": "队列事件",
+	"settings.log-streaming.eventGroup.n8n.queue.info": "当发生与队列相关的事件时（如入队、出队、完成、失败或卡顿），将发送一个事件。"
 }

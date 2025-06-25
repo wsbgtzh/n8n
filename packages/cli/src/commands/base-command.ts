@@ -1,5 +1,12 @@
 import 'reflect-metadata';
-import { inDevelopment, inTest, LicenseState, Logger } from '@n8n/backend-common';
+import {
+	inDevelopment,
+	inTest,
+	LicenseState,
+	Logger,
+	ModuleRegistry,
+	ModulesConfig,
+} from '@n8n/backend-common';
 import { GlobalConfig } from '@n8n/config';
 import { LICENSE_FEATURES } from '@n8n/constants';
 import { Container } from '@n8n/di';
@@ -28,8 +35,6 @@ import { ExternalHooks } from '@/external-hooks';
 import { initEnterpriseMock } from '@/init-enterprise-mock';
 import { License } from '@/license';
 import { LoadNodesAndCredentials } from '@/load-nodes-and-credentials';
-import { ModuleRegistry } from '@/modules/module-registry';
-import { ModulesConfig } from '@/modules/modules.config';
 import { NodeTypes } from '@/node-types';
 import { PostHogClient } from '@/posthog';
 import { ShutdownService } from '@/shutdown/shutdown.service';
@@ -73,19 +78,7 @@ export abstract class BaseCommand extends Command {
 	protected needsTaskRunner = false;
 
 	protected async loadModules() {
-		for (const moduleName of this.modulesConfig.modules) {
-			// add module to the registry for dependency injection
-			try {
-				await import(`../modules/${moduleName}/${moduleName}.module`);
-			} catch {
-				await import(`../modules/${moduleName}.ee/${moduleName}.module`);
-			}
-
-			this.modulesConfig.addLoadedModule(moduleName);
-			this.logger.debug(`Loaded module "${moduleName}"`);
-		}
-
-		this.moduleRegistry.addEntities();
+		await this.moduleRegistry.loadModules();
 	}
 
 	async init(): Promise<void> {
