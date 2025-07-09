@@ -1,32 +1,99 @@
-name: Docker Custom Image CI
-run-name: Build ${{ github.ref_name }} - ${{ github.actor }}
+name: 'Docker: Build and Push (CHS tag or branch only)'
+
+env:
+  NODE_OPTIONS: '--max-old-space-size=8192'
 
 on:
   push:
-    branches:
-      - chs
     tags:
-      - '*chs' # 只匹配以 chs 结尾的 tag
+      - '*chs'
+    branches:
+      - '*chs*'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-and-push-docker:
+    strategy:
+      matrix:
+        platform: [amd64, arm64]
+        include:
+          - platform: amd64
+            runner: blacksmith-4vcpu-ubuntu-2204
+            docker_platform: linux/amd64
+          - platform: arm64
+            runner: blacksmith-4vcpu-ubuntu-2204-arm
+            docker_platform: linux/arm64
 
+    name: Build and Push Docker Image (${{ matrix.platform }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    outputs:
+      image_ref: ${{ steps.determine-tags.outputs.primary_tag }}
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # 获取全部历史和 tag 信息
+          fetch-depth: 0
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: useblacksmith/setup-node@v5
+        with:
+          node-version: 22.x
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure Turborepo Cache
+        uses: useblacksmith/caching-for-turbo@v1
+
+      - name: Build n8n for Docker
+        run: pnpm build:n8n
+
+      - name: Set build context
+        id: context
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            REF_NAME="${GITHUB_REF#refs/tags/}"
+          else
+            REF_NAME="${GITHUB_REF#refs/heads/}"
+          fi
+
+          echo "release_type=custom" >> $GITHUB_OUTPUT
+          echo "n8n_version=$REF_NAME" >> $GITHUB_OUTPUT
+          echo "push_enabled=true" >> $GITHUB_OUTPUT
+
+      - name: Determine Docker tags
+        id: determine-tags
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            REF_NAME="${GITHUB_REF#refs/tags/}"
+          else
+            REF_NAME="${GITHUB_REF#refs/heads/}"
+          fi
+
+          GHCR_BASE="ghcr.io/${{ github.repository_owner }}/n8n"
+          DOCKER_BASE="${{ secrets.DOCKER_USERNAME }}/n8n"
+          PLATFORM="${{ matrix.platform }}"
+
+          PRIMARY_GHCR_MANIFEST_TAG_VALUE="${GHCR_BASE}:${REF_NAME}"
+          PRIMARY_DOCKER_MANIFEST_TAG_VALUE="${DOCKER_BASE}:${REF_NAME}"
+          GHCR_TAGS_FOR_PUSH="${PRIMARY_GHCR_MANIFEST_TAG_VALUE}-${PLATFORM}"
+          DOCKER_TAGS_FOR_PUSH="${PRIMARY_DOCKER_MANIFEST_TAG_VALUE}-${PLATFORM}"
+
+          echo "tags<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$GHCR_TAGS_FOR_PUSH\n$DOCKER_TAGS_FOR_PUSH" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "primary_tag=${PRIMARY_GHCR_MANIFEST_TAG_VALUE}" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          platforms: linux/amd64,linux/arm64
 
-      - name: Login to GHCR
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -34,26 +101,68 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to DockerHub
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push multi-platform image to GHCR
-        uses: docker/build-push-action@v6
-        env:
-          DOCKER_BUILD_SUMMARY: false
+      - name: Build and push Docker image
+        uses: useblacksmith/build-push-action@v1.2
         with:
           context: .
           file: ./docker/images/n8n/Dockerfile
           build-args: |
-            N8N_RELEASE_TYPE=stable
-          platforms: linux/amd64,linux/arm64
+            NODE_VERSION=22
+            N8N_VERSION=${{ steps.context.outputs.n8n_version }}
+            N8N_RELEASE_TYPE=custom
+          platforms: ${{ matrix.docker_platform }}
           provenance: false
-          sbom: false
           push: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/n8n:${{ github.ref_name }}
-            ghcr.io/${{ github.repository_owner }}/n8n:${{ github.ref_name }}
+          tags: ${{ steps.determine-tags.outputs.tags }}
+
+  create_multi_arch_manifest:
+    name: Create Multi-Arch Manifest
+    needs: build-and-push-docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create GHCR multi-arch manifest
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            REF_NAME="${GITHUB_REF#refs/tags/}"
+          else
+            REF_NAME="${GITHUB_REF#refs/heads/}"
+          fi
+
+          docker buildx imagetools create \
+            --tag ghcr.io/${{ github.repository_owner }}/n8n:$REF_NAME \
+            ghcr.io/${{ github.repository_owner }}/n8n:$REF_NAME-amd64 \
+            ghcr.io/${{ github.repository_owner }}/n8n:$REF_NAME-arm64
+
+      - name: Create DockerHub multi-arch manifest
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            REF_NAME="${GITHUB_REF#refs/tags/}"
+          else
+            REF_NAME="${GITHUB_REF#refs/heads/}"
+          fi
+
+          docker buildx imagetools create \
+            --tag ${{ secrets.DOCKER_USERNAME }}/n8n:$REF_NAME \
+            ${{ secrets.DOCKER_USERNAME }}/n8n:$REF_NAME-amd64 \
+            ${{ secrets.DOCKER_USERNAME }}/n8n:$REF_NAME-arm64
