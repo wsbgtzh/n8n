@@ -3223,5 +3223,19 @@
 	"projects.settings.delete.message.empty": "该项目中没有任何工作流或凭据。",
 	"generic.upgradeToEnterprise": "升级到企业版",
 	"settings.log-streaming.eventGroup.n8n.queue": "队列事件",
-	"settings.log-streaming.eventGroup.n8n.queue.info": "当发生与队列相关的事件时（如入队、出队、完成、失败或卡顿），将发送一个事件。"
+	"settings.log-streaming.eventGroup.n8n.queue.info": "当发生与队列相关的事件时（如入队、出队、完成、失败或卡顿），将发送一个事件。",
+	"generic.credentials": "凭据",
+	"mainSidebar.whatsNew": "最新动态",
+	"mainSidebar.whatsNew.fullChangelog": "完整更新日志",
+	"nodeView.openFocusPanel": "打开焦点面板",
+	"nodeView.focusPanel.executeButtonTooltip": "执行 AI 代理",
+	"nodeView.focusPanel.title": "焦点",
+	"nodeView.focusPanel.noParameters": "未聚焦任何参数。请在节点详情视图中点击操作下拉菜单来聚焦参数。",
+	"parameterInput.focusParameter": "聚焦参数",
+	"settings.sourceControl.modals.push.filter": "已应用筛选条件。显示 {count} 个 {entity}。",
+	"settings.sourceControl.modals.push.projectAdmin.callout": "如果你想从个人空间推送工作流，请先将其移动到某个项目中。",
+	"whatsNew.versionsBehind": "落后 {count} 个版本",
+	"whatsNew.update": "更新",
+	"whatsNew.updateAvailable": "你当前使用的是版本 {currentVersion}。可更新至版本 {latestVersion}，获取 {count} 个版本的新增功能、改进和修复。查看更新内容",
+	"whatsNew.updateAvailable.changelogLink": "查看完整更新日志"
 }
