@@ -17,10 +17,10 @@ jobs:
         platform: [amd64, arm64]
         include:
           - platform: amd64
-            runner: blacksmith-4vcpu-ubuntu-2204
+            runner: ubuntu-latest
             docker_platform: linux/amd64
           - platform: arm64
-            runner: blacksmith-4vcpu-ubuntu-2204-arm
+            runner: ubuntu-latest
             docker_platform: linux/arm64
 
     name: Build and Push Docker Image (${{ matrix.platform }})
