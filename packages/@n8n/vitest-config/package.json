@@ -1,6 +1,6 @@
 {
   "name": "@n8n/vitest-config",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "type": "module",
   "peerDependencies": {
     "vite": "catalog:",
@@ -12,9 +12,15 @@
     "vitest": "catalog:"
   },
   "files": [
+    "backend.mjs",
     "frontend.mjs"
   ],
   "exports": {
+    "./backend": {
+      "import": "./backend.mjs",
+      "require": "./backend.mjs",
+      "types": "./backend.d.ts"
+    },
     "./frontend": {
       "import": "./dist/frontend.js",
       "require": "./dist/frontend.js",

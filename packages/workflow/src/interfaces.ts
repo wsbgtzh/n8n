@@ -223,6 +223,12 @@ export abstract class ICredentialsHelper {
 		data: ICredentialDataDecryptedObject,
 	): Promise<void>;
 
+	abstract updateCredentialsOauthTokenData(
+		nodeCredentials: INodeCredentialsDetails,
+		type: string,
+		data: ICredentialDataDecryptedObject,
+	): Promise<void>;
+
 	abstract getCredentialsProperties(type: string): INodeProperties[];
 }
 
@@ -920,6 +926,7 @@ export type IExecuteFunctions = ExecuteFunctions.GetNodeParameterFn &
 		sendMessageToUI(message: any): void;
 		sendResponse(response: IExecuteResponsePromiseData): void;
 		sendChunk(type: ChunkType, content?: IDataObject | string): void;
+		isStreaming(): boolean;
 
 		// TODO: Make this one then only available in the new config one
 		addInputData(
@@ -2394,6 +2401,7 @@ export interface IWorkflowExecuteAdditionalData {
 	currentNodeExecutionIndex: number;
 	httpResponse?: express.Response;
 	httpRequest?: express.Request;
+	streamingEnabled?: boolean;
 	restApiUrl: string;
 	instanceBaseUrl: string;
 	setExecutionStatus?: (status: ExecutionStatus) => void;

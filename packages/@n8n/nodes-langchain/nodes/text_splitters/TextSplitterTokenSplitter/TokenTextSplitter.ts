@@ -1,4 +1,3 @@
-/* eslint-disable n8n-nodes-base/node-dirname-against-convention */
 import type { TokenTextSplitterParams } from '@langchain/textsplitters';
 import { TextSplitter } from '@langchain/textsplitters';
 import { hasLongSequentialRepeat } from '@utils/helpers';
