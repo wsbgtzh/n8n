@@ -20,11 +20,10 @@ import {
 	MODAL_CONFIRM,
 	VIEWS,
 } from '@/constants';
-import {
-	isExtraTemplateLinksExperimentEnabled,
-	TemplateClickSource,
-	trackTemplatesClick,
-} from '@/utils/experiments';
+import { useAITemplatesStarterCollectionStore } from '@/experiments/aiTemplatesStarterCollection/stores/aiTemplatesStarterCollection.store';
+import SuggestedWorkflowCard from '@/experiments/personalizedTemplates/components/SuggestedWorkflowCard.vue';
+import SuggestedWorkflows from '@/experiments/personalizedTemplates/components/SuggestedWorkflows.vue';
+import { usePersonalizedTemplatesStore } from '@/experiments/personalizedTemplates/stores/personalizedTemplates.store';
 import InsightsSummary from '@/features/insights/components/InsightsSummary.vue';
 import { useInsightsStore } from '@/features/insights/insights.store';
 import type {
@@ -51,6 +50,11 @@ import { useWorkflowsStore } from '@/stores/workflows.store';
 import { type Project, type ProjectSharingData, ProjectTypes } from '@/types/projects.types';
 import { getEasyAiWorkflowJson } from '@/utils/easyAiWorkflowUtils';
 import {
+	isExtraTemplateLinksExperimentEnabled,
+	TemplateClickSource,
+	trackTemplatesClick,
+} from '@/utils/experiments';
+import {
 	N8nButton,
 	N8nCard,
 	N8nHeading,
@@ -69,7 +73,6 @@ import debounce from 'lodash/debounce';
 import { type IUser, PROJECT_ROOT } from 'n8n-workflow';
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { type LocationQueryRaw, useRoute, useRouter } from 'vue-router';
-import { useAITemplatesStarterCollectionStore } from '@/experiments/aiTemplatesStarterCollection/stores/aiTemplatesStarterCollection.store';
 
 const SEARCH_DEBOUNCE_TIME = 300;
 const FILTERS_DEBOUNCE_TIME = 100;
@@ -114,6 +117,7 @@ const usageStore = useUsageStore();
 const insightsStore = useInsightsStore();
 const templatesStore = useTemplatesStore();
 const aiStarterTemplatesStore = useAITemplatesStarterCollectionStore();
+const personalizedTemplatesStore = usePersonalizedTemplatesStore();
 
 const documentTitle = useDocumentTitle();
 const { callDebounced } = useDebounce();
@@ -383,6 +387,10 @@ const showAIStarterCollectionCallout = computed(() => {
 			(hasPermissionToCreateFolders.value && hasPermissionToCreateWorkflows.value))
 	);
 });
+
+const showPersonalizedTemplates = computed(
+	() => !loading.value && personalizedTemplatesStore.isFeatureEnabled(),
+);
 
 /**
  * WATCHERS, STORE SUBSCRIPTIONS AND EVENT BUS HANDLERS
@@ -1695,6 +1703,17 @@ const onNameSubmit = async (name: string) => {
 					</div>
 				</template>
 			</N8nCallout>
+			<SuggestedWorkflows v-else-if="showPersonalizedTemplates">
+				<SuggestedWorkflowCard
+					v-for="workflow in personalizedTemplatesStore.suggestedWorkflows"
+					:key="workflow.id"
+					data-test-id="resource-list-item-suggested-workflow"
+					:data="{
+						id: workflow.id,
+						name: workflow.name,
+					}"
+				/>
+			</SuggestedWorkflows>
 			<N8nCallout
 				v-else-if="!loading && showEasyAIWorkflowCallout && easyAICalloutVisible"
 				theme="secondary"

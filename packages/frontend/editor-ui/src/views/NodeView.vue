@@ -54,7 +54,6 @@ import {
 	CHAT_TRIGGER_NODE_TYPE,
 	DRAG_EVENT_DATA_KEY,
 	EnterpriseEditionFeature,
-	FOCUS_PANEL_EXPERIMENT,
 	FROM_AI_PARAMETERS_MODAL_KEY,
 	MAIN_HEADER_TABS,
 	MANUAL_CHAT_TRIGGER_NODE_TYPE,
@@ -252,10 +251,6 @@ const {
 const { extractWorkflow } = useWorkflowExtraction();
 const { applyExecutionData } = useExecutionDebugging();
 useClipboard({ onPaste: onClipboardPaste });
-
-const isFocusPanelFeatureEnabled = computed(() => {
-	return usePostHog().getVariant(FOCUS_PANEL_EXPERIMENT.name) === FOCUS_PANEL_EXPERIMENT.variant;
-});
 
 const isLoading = ref(true);
 const isBlankRedirect = ref(false);
@@ -981,10 +976,6 @@ function onUpdateNodeOutputs(id: string) {
 }
 
 function onClickNodeAdd(source: string, sourceHandle: string) {
-	if (isFocusPanelFeatureEnabled.value && focusPanelStore.focusPanelActive) {
-		focusPanelStore.hideFocusPanel();
-	}
-
 	nodeCreatorStore.openNodeCreatorForConnectingNode({
 		connection: {
 			source,
@@ -1218,10 +1209,6 @@ function onOpenSelectiveNodeCreator(
 function onToggleNodeCreator(options: ToggleNodeCreatorOptions) {
 	nodeCreatorStore.setNodeCreatorState(options);
 
-	if (isFocusPanelFeatureEnabled.value && focusPanelStore.focusPanelActive) {
-		focusPanelStore.hideFocusPanel(options.createNodeActive);
-	}
-
 	if (!options.createNodeActive && !options.hasAddedNodes) {
 		uiStore.resetLastInteractedWith();
 	}
@@ -1236,20 +1223,17 @@ function onOpenNodeCreatorForTriggerNodes(source: NodeCreatorOpenSource) {
 }
 
 function onToggleFocusPanel() {
-	if (!isFocusPanelFeatureEnabled.value) {
-		return;
-	}
-
 	focusPanelStore.toggleFocusPanel();
+	telemetry.track(`User ${focusPanelStore.focusPanelActive ? 'opened' : 'closed'} focus panel`, {
+		source: 'canvasKeyboardShortcut',
+		parameters: focusPanelStore.focusedNodeParametersInTelemetryFormat,
+		parameterCount: focusPanelStore.focusedNodeParametersInTelemetryFormat.length,
+	});
 }
 
 function closeNodeCreator() {
 	if (nodeCreatorStore.isCreateNodeActive) {
 		nodeCreatorStore.isCreateNodeActive = false;
-
-		if (isFocusPanelFeatureEnabled.value && focusPanelStore.focusPanelActive) {
-			focusPanelStore.hideFocusPanel(false);
-		}
 	}
 }
 
@@ -2179,7 +2163,7 @@ onBeforeUnmount(() => {
 			</Suspense>
 		</WorkflowCanvas>
 		<FocusPanel
-			v-if="isFocusPanelFeatureEnabled"
+			v-if="!isLoading"
 			:is-canvas-read-only="isCanvasReadOnly"
 			@save-keyboard-shortcut="onSaveWorkflow"
 		/>
