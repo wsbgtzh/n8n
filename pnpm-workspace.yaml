@@ -24,7 +24,7 @@ catalog:
   axios: 1.8.3
   basic-auth: 2.0.1
   callsites: 3.1.0
-  chokidar: 4.0.1
+  chokidar: 4.0.3
   fast-glob: 3.2.12
   flatted: 3.2.7
   form-data: 4.0.0
@@ -50,7 +50,7 @@ catalog:
   xss: 1.0.15
   zod: 3.25.67
   zod-to-json-schema: 3.23.3
-  typescript: 5.8.3
+  typescript: 5.9.2
   eslint: 9.29.0
 
 catalogs:
