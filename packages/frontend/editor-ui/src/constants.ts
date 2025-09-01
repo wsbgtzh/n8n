@@ -802,6 +802,7 @@ export const EXPERIMENTS_TO_TRACK = [
 	NDV_UI_OVERHAUL_EXPERIMENT.name,
 	BATCH_11AUG_EXPERIMENT.name,
 	PRE_BUILT_AGENTS_EXPERIMENT.name,
+	TEMPLATE_RECO_V2.name,
 ];
 
 export const MFA_FORM = {
@@ -965,10 +966,10 @@ export const CanvasKey = 'canvas' as unknown as InjectionKey<CanvasInjectionData
 export const CanvasNodeKey = 'canvasNode' as unknown as InjectionKey<CanvasNodeInjectionData>;
 export const CanvasNodeHandleKey =
 	'canvasNodeHandle' as unknown as InjectionKey<CanvasNodeHandleInjectionData>;
-export const PiPWindowSymbol = 'PiPWindow' as unknown as InjectionKey<Ref<Window | undefined>>;
-export const ExpressionLocalResolveContextSymbol = Symbol(
-	'ExpressionLocalResolveContext',
-) as InjectionKey<ComputedRef<ExpressionLocalResolveContext | undefined>>;
+export const PopOutWindowKey: InjectionKey<Ref<Window | undefined>> = Symbol('PopOutWindow');
+export const ExpressionLocalResolveContextSymbol: InjectionKey<
+	ComputedRef<ExpressionLocalResolveContext | undefined>
+> = Symbol('ExpressionLocalResolveContext');
 
 export const APP_MODALS_ELEMENT_ID = 'app-modals';
 export const CODEMIRROR_TOOLTIP_CONTAINER_ELEMENT_ID = 'cm-tooltip-container';
