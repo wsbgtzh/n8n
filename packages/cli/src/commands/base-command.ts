@@ -34,11 +34,11 @@ import { ExternalHooks } from '@/external-hooks';
 import { initEnterpriseMock } from '@/init-enterprise-mock';
 import { License } from '@/license';
 import { LoadNodesAndCredentials } from '@/load-nodes-and-credentials';
+import { CommunityPackagesConfig } from '@/modules/community-packages/community-packages.config';
 import { NodeTypes } from '@/node-types';
 import { PostHogClient } from '@/posthog';
 import { ShutdownService } from '@/shutdown/shutdown.service';
 import { WorkflowHistoryManager } from '@/workflows/workflow-history.ee/workflow-history-manager.ee';
-import { CommunityPackagesConfig } from '@/community-packages/community-packages.config';
 
 export abstract class BaseCommand<F = never> {
 	readonly flags: F;
@@ -91,6 +91,7 @@ export abstract class BaseCommand<F = never> {
 			release: `n8n@${N8N_VERSION}`,
 			serverName: deploymentName,
 			releaseDate: N8N_RELEASE_DATE,
+			withEventLoopBlockDetection: true,
 		});
 
 		process.once('SIGTERM', this.onTerminationSignal('SIGTERM'));
@@ -134,10 +135,11 @@ export abstract class BaseCommand<F = never> {
 			);
 		}
 
+		// @TODO: Move to community-packages module
 		const communityPackagesConfig = Container.get(CommunityPackagesConfig);
 		if (communityPackagesConfig.enabled && this.needsCommunityPackages) {
 			const { CommunityPackagesService } = await import(
-				'@/community-packages/community-packages.service'
+				'@/modules/community-packages/community-packages.service'
 			);
 			await Container.get(CommunityPackagesService).init();
 		}

@@ -3434,5 +3434,14 @@
   "dataStore.addColumn.invalidName.description": "列名仅允许使用字母数字字符和非开头的短横线",
   "workflowDiff.newWorkflow": "新建工作流",
   "workflowDiff.newWorkflow.database": "该工作流将被创建在数据库中",
-  "workflowDiff.newWorkflow.remote": "该工作流将被创建在远程"
+  "workflowDiff.newWorkflow.remote": "该工作流将被创建在远程",
+  "generic.saving": "保存中",
+  "dataStore.moveColumn.error": "移动列时出错",
+  "dataStore.deleteColumn.error": "删除列时出错",
+  "dataStore.deleteColumn.confirm.title": "删除列",
+  "dataStore.deleteColumn.confirm.message": "确定要删除列 \"{name}\" 吗？此操作无法撤销。",
+  "dataStore.fetchContent.error": "获取数据存储内容时出错",
+  "dataStore.addRow.label": "添加行",
+  "dataStore.addRow.error": "添加行时出错",
+  "dataStore.updateRow.error": "更新行时出错"
 }
