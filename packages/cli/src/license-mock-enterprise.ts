@@ -34,7 +34,7 @@ export class EnterpriseLicenseMocker {
 		// 模拟许可证检查 - 所有功能都返回true，除了SHOW_NON_PROD_BANNER
 		license.isLicensed = (feature: BooleanLicenseFeature): boolean => {
 			// 特殊处理：SHOW_NON_PROD_BANNER应该返回false以隐藏横幅
-			if (feature === 'feat:showNonProdBanner') {
+			if (feature === 'feat:showNonProdBanner' || feature === 'feat:apiDisabled') {
 				console.log(`[ENTERPRISE MOCK] Feature ${feature} disabled (hiding non-prod banner)`);
 				return false;
 			}
@@ -55,13 +55,10 @@ export class EnterpriseLicenseMocker {
 				return UNLIMITED_LICENSE_QUOTA;
 			}
 
-			// 对于布尔功能，返回true； 但是 feat:apiDisabled' 返回false
+			// 对于布尔功能，返回true；
 			if (Object.values(LICENSE_FEATURES).some((licenseFeature) => licenseFeature === feature)) {
 				console.log(`[ENTERPRISE MOCK] Feature ${feature} enabled`);
 				return true;
-			} else if (feature === 'feat:apiDisabled') {
-				console.log(`[ENTERPRISE MOCK] Feature ${feature} disabled`);
-				return false;
 			}
 
 			const originalGetValue = this.originalMethods.get('getValue');
