@@ -7,13 +7,14 @@
  * 警告：请勿在生产环境中使用此代码！
  */
 
-import type { BooleanLicenseFeature, NumericLicenseFeature } from '@n8n/constants';
+import type { BooleanLicenseFeature } from '@n8n/constants';
 import { LICENSE_FEATURES, LICENSE_QUOTAS, UNLIMITED_LICENSE_QUOTA } from '@n8n/constants';
+
 import type { License } from '@/license';
 
 export class EnterpriseLicenseMocker {
 	private static instance: EnterpriseLicenseMocker;
-	private originalMethods: Map<string, any> = new Map();
+	private originalMethods: Map<string, unknown> = new Map();
 
 	static getInstance(): EnterpriseLicenseMocker {
 		if (!EnterpriseLicenseMocker.instance) {
@@ -42,56 +43,57 @@ export class EnterpriseLicenseMocker {
 		};
 
 		// 模拟配额值 - 返回无限制或很大的数值
-		license.getValue = (feature: string): any => {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+		(license as any).getValue = (feature: string) => {
 			if (feature === 'planName') {
 				return 'Enterprise (Mocked)';
 			}
 
 			// 对于配额类型，返回无限制
-			if (Object.values(LICENSE_QUOTAS).includes(feature as any)) {
+			if (Object.values(LICENSE_QUOTAS).some((quota) => quota === feature)) {
 				console.log(`[ENTERPRISE MOCK] Quota ${feature} set to unlimited`);
 				return UNLIMITED_LICENSE_QUOTA;
 			}
 
-			// 对于布尔功能，返回true
-			if (Object.values(LICENSE_FEATURES).includes(feature as any)) {
+			// 对于布尔功能，返回true； 但是 feat:apiDisabled' 返回false
+			if (Object.values(LICENSE_FEATURES).some((licenseFeature) => licenseFeature === feature)) {
 				console.log(`[ENTERPRISE MOCK] Feature ${feature} enabled`);
 				return true;
+			} else if (feature === 'feat:apiDisabled') {
+				console.log(`[ENTERPRISE MOCK] Feature ${feature} disabled`);
+				return false;
 			}
 
-			return this.originalMethods.get('getValue')?.(feature);
+			const originalGetValue = this.originalMethods.get('getValue');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
+			return (originalGetValue as any)?.(feature) ?? false;
 		};
 
-		// 模拟其他企业版相关方法
-		license.isAdvancedPermissionsLicensed = () => true;
-		license.isSharingEnabled = () => true;
-		license.isLdapEnabled = () => true;
-		license.isSamlEnabled = () => true;
-		license.isSourceControlLicensed = () => true;
-		license.isVariablesEnabled = () => true;
-		license.isExternalSecretsEnabled = () => true;
-		license.isWorkflowHistoryLicensed = () => true;
-		license.isLogStreamingEnabled = () => true;
-		license.isMultiMainLicensed = () => true;
-		license.isBinaryDataS3Licensed = () => true;
-		license.isDebugInEditorLicensed = () => true;
-		license.isWorkerViewLicensed = () => true;
-		license.isAiAssistantEnabled = () => false;
-		license.isAiCreditsEnabled = () => true;
-		license.isFoldersEnabled = () => true;
-		license.isProjectRoleAdminLicensed = () => true;
-		license.isProjectRoleEditorLicensed = () => true;
-		license.isProjectRoleViewerLicensed = () => true;
-		license.isCustomNpmRegistryEnabled = () => true;
+		// 注意：许多方法已被弃用，建议使用 LicenseState 替代
+		// 这里只模拟一些仍在使用的核心方法
 
-		// 模拟配额方法
-		license.getUsersLimit = () => UNLIMITED_LICENSE_QUOTA;
-		license.getTriggerLimit = () => UNLIMITED_LICENSE_QUOTA;
-		license.getVariablesLimit = () => UNLIMITED_LICENSE_QUOTA;
-		license.getAiCredits = () => 999999;
-		license.getWorkflowHistoryPruneLimit = () => UNLIMITED_LICENSE_QUOTA;
-		license.getTeamProjectLimit = () => UNLIMITED_LICENSE_QUOTA;
-		license.isWithinUsersLimit = () => true;
+		// 模拟配额方法（已弃用但仍可能被使用）
+		if (license.getUsersLimit) {
+			license.getUsersLimit = () => UNLIMITED_LICENSE_QUOTA;
+		}
+		if (license.getTriggerLimit) {
+			license.getTriggerLimit = () => UNLIMITED_LICENSE_QUOTA;
+		}
+		if (license.getVariablesLimit) {
+			license.getVariablesLimit = () => UNLIMITED_LICENSE_QUOTA;
+		}
+		if (license.getAiCredits) {
+			license.getAiCredits = () => 999999;
+		}
+		if (license.getWorkflowHistoryPruneLimit) {
+			license.getWorkflowHistoryPruneLimit = () => UNLIMITED_LICENSE_QUOTA;
+		}
+		if (license.getTeamProjectLimit) {
+			license.getTeamProjectLimit = () => UNLIMITED_LICENSE_QUOTA;
+		}
+		if (license.isWithinUsersLimit) {
+			license.isWithinUsersLimit = () => true;
+		}
 
 		// 模拟许可证信息
 		license.getPlanName = () => 'Enterprise (Mocked)';
@@ -106,10 +108,14 @@ export class EnterpriseLicenseMocker {
 	 */
 	restore(license: License): void {
 		if (this.originalMethods.has('isLicensed')) {
-			license.isLicensed = this.originalMethods.get('isLicensed');
+			const originalIsLicensed = this.originalMethods.get(
+				'isLicensed',
+			) as typeof license.isLicensed;
+			license.isLicensed = originalIsLicensed;
 		}
 		if (this.originalMethods.has('getValue')) {
-			license.getValue = this.originalMethods.get('getValue');
+			const originalGetValue = this.originalMethods.get('getValue') as typeof license.getValue;
+			license.getValue = originalGetValue;
 		}
 		this.originalMethods.clear();
 		console.log('[ENTERPRISE MOCK] Original license methods restored');
