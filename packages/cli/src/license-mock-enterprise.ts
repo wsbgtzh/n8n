@@ -34,7 +34,12 @@ export class EnterpriseLicenseMocker {
 		// 模拟许可证检查 - 所有功能都返回true，除了SHOW_NON_PROD_BANNER
 		license.isLicensed = (feature: BooleanLicenseFeature): boolean => {
 			// 特殊处理：SHOW_NON_PROD_BANNER应该返回false以隐藏横幅
-			if (feature === 'feat:showNonProdBanner' || feature === 'feat:apiDisabled') {
+			if (
+				feature === 'feat:showNonProdBanner' ||
+				feature === 'feat:apiDisabled' ||
+				feature === 'feat:aiAssistant' ||
+				feature === 'feat:askAi'
+			) {
 				console.log(`[ENTERPRISE MOCK] Feature ${feature} disabled (hiding non-prod banner)`);
 				return false;
 			}
