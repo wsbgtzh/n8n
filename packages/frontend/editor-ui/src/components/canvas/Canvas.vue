@@ -447,11 +447,7 @@ function onSelectNodes({ ids, panIntoView }: CanvasEventBusEvents['nodes:select'
 
 		const newViewport = updateViewportToContainNodes(viewport.value, dimensions.value, nodes, 100);
 
-		void setViewport(newViewport, {
-			duration: 200,
-			// TODO: restore when re-upgrading vue-flow to >= 1.45
-			// interpolate: 'linear',
-		});
+		void setViewport(newViewport, { duration: 200, interpolate: 'linear' });
 	}
 }
 
@@ -469,10 +465,16 @@ function onUpdateNodeParameters(id: string, parameters: Record<string, unknown>)
 
 function onUpdateNodeInputs(id: string) {
 	emit('update:node:inputs', id);
+
+	// Let VueFlow update connection paths to match the new handle position
+	void nextTick(() => vueFlow.updateNodeInternals([id]));
 }
 
 function onUpdateNodeOutputs(id: string) {
 	emit('update:node:outputs', id);
+
+	// Let VueFlow update connection paths to match the new handle position
+	void nextTick(() => vueFlow.updateNodeInternals([id]));
 }
 
 function onFocusNode(id: string) {
@@ -922,7 +924,7 @@ provide(CanvasKey, {
 		snap-to-grid
 		:snap-grid="[GRID_SIZE, GRID_SIZE]"
 		:min-zoom="0"
-		:max-zoom="experimentalNdvStore.isEnabled ? experimentalNdvStore.maxCanvasZoom : 4"
+		:max-zoom="experimentalNdvStore.isZoomedViewEnabled ? experimentalNdvStore.maxCanvasZoom : 4"
 		:selection-key-code="selectionKeyCode"
 		:zoom-activation-key-code="panningKeyCode"
 		:pan-activation-key-code="panningKeyCode"

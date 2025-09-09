@@ -5,6 +5,7 @@ import {
 	AuthIdentity,
 	AuthIdentityRepository,
 	isValidEmail,
+	GLOBAL_MEMBER_ROLE,
 	SettingsRepository,
 	type User,
 	UserRepository,
@@ -117,14 +118,21 @@ export class OidcService {
 
 		const openidUser = await this.authIdentityRepository.findOne({
 			where: { providerId: claims.sub, providerType: 'oidc' },
-			relations: ['user'],
+			relations: {
+				user: {
+					role: true,
+				},
+			},
 		});
 
 		if (openidUser) {
 			return openidUser.user;
 		}
 
-		const foundUser = await this.userRepository.findOneBy({ email: userInfo.email });
+		const foundUser = await this.userRepository.findOne({
+			where: { email: userInfo.email },
+			relations: ['authIdentities', 'role'],
+		});
 
 		if (foundUser) {
 			this.logger.debug(
@@ -149,7 +157,7 @@ export class OidcService {
 					lastName: userInfo.family_name,
 					email: userInfo.email,
 					authIdentities: [],
-					role: 'global:member',
+					role: GLOBAL_MEMBER_ROLE,
 					password: 'no password set',
 				},
 				trx,
