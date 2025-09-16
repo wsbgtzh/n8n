@@ -3465,5 +3465,6 @@
   "projects.header.personal.subtitleWithDataTables": "您拥有的工作流、凭证和数据表",
   "preBuiltAgentTemplates.title": "预构建代理",
   "preBuiltAgentTemplates.tutorials": "教程模板",
-  "preBuiltAgentTemplates.viewAllLink": "查看所有模板"
+  "preBuiltAgentTemplates.viewAllLink": "查看所有模板",
+  "workflowDiff.compare": "比较版本"
 }
