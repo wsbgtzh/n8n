@@ -3466,5 +3466,18 @@
   "preBuiltAgentTemplates.title": "预构建代理",
   "preBuiltAgentTemplates.tutorials": "教程模板",
   "preBuiltAgentTemplates.viewAllLink": "查看所有模板",
-  "workflowDiff.compare": "比较版本"
+  "workflowDiff.compare": "比较版本",
+  "generic.betaProper": "测试版",
+  "generic.error.subworkflowCreationFailed": "创建子工作流时出错",
+  "nodeCreator.nodeItem.beta": "测试版",
+  "nodeView.focusPanel.v2.noParameters.title": "选择一个节点在此进行编辑",
+  "nodeView.focusPanel.v2.noParameters.subtitle": "或者点击节点旁边的此按钮，显示您想要迭代的单个节点参数：",
+  "runData.executionStatus.canceled": "执行已取消",
+  "workflows.empty.readyToRunV2": "尝试一个 AI 工作流",
+  "dataStore.addColumn.alreadyExistsError": "该列已存在",
+  "dataStore.addColumn.alreadyExistsDescription": "列名已存在，请选择其他名称",
+  "dataStore.banner.storageLimitWarning.message": "已使用 {usage} 的数据表存储。请删除数据以避免错误",
+  "dataStore.banner.storageLimitError.message": "已使用 {usage} 的数据表存储，操作可能失败。请删除数据以避免错误",
+  "dataStore.error.tableNotInitialized": "表未初始化",
+  "dataStore.noRows": "暂无行"
 }
