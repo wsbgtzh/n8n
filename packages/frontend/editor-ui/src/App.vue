@@ -49,7 +49,11 @@ useHistoryHelper(route);
 useWorkflowDiffRouting();
 
 const loading = ref(true);
-const defaultLocale = computed(() => rootStore.defaultLocale);
+const defaultLocale = computed(() => {
+	// 优先从 localStorage 读取用户保存的语言设置
+	const savedLanguage = localStorage.getItem('n8n-user-language');
+	return savedLanguage || rootStore.defaultLocale;
+});
 const isDemoMode = computed(() => route.name === VIEWS.DEMO);
 const showAssistantFloatingButton = computed(
 	() =>
@@ -66,6 +70,21 @@ useTelemetryContext({ ndv_source: computed(() => ndvStore.lastSetActiveNodeSourc
 onMounted(async () => {
 	setAppZIndexes();
 	logHiringBanner();
+
+	// 初始化语言设置
+	const savedLanguage = localStorage.getItem('n8n-user-language');
+	if (savedLanguage && savedLanguage !== 'en') {
+		try {
+			const messages = await import(`@n8n/i18n/locales/${savedLanguage}.json`);
+			loadLanguage(savedLanguage, messages.default);
+			rootStore.setDefaultLocale(savedLanguage);
+		} catch (error) {
+			console.warn('Failed to load saved language:', error);
+			// 如果加载失败，清除无效的存储
+			localStorage.removeItem('n8n-user-language');
+		}
+	}
+
 	loading.value = false;
 	window.addEventListener('resize', updateGridWidth);
 	await updateGridWidth();

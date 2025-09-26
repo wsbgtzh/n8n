@@ -1994,6 +1994,7 @@
 	"settings.personal.role.tooltip.cloud": " and access Cloud dashboard",
 	"settings.personal.save": "Save",
 	"settings.personal.security": "Security",
+	"settings.personal.language": "Language",
 	"settings.signup.signUpInviterInfo": "{firstName} {lastName} has invited you to n8n",
 	"settings.users": "Users",
 	"settings.users.count": "{count} user | {count} users",
