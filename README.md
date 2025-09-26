@@ -8,6 +8,10 @@ n8n 是一个工作流自动化平台，为技术团队提供代码般的灵活�
 
 ![n8n.io - Screenshot](https://raw.githubusercontent.com/n8n-io/n8n/master/assets/n8n-screenshot-readme.png)
 
+## 在个人设置里面增加语言选择功能（非官方）
+<img width="1114" height="1000" alt="image" src="https://github.com/user-attachments/assets/87f1f1b9-71e2-4796-a59a-5881a8a19a3d" />
+
+
 ## 核心能力
 
 - **按需编码**：编写JavaScript/Python代码，添加npm包，或使用可视化界面
