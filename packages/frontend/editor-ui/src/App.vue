@@ -30,6 +30,8 @@ import axios from 'axios';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStyles } from './composables/useStyles';
+import { useExposeCssVar } from '@/composables/useExposeCssVar';
+import { useFloatingUiOffsets } from '@/composables/useFloatingUiOffsets';
 
 const route = useRoute();
 const rootStore = useRootStore();
@@ -41,6 +43,7 @@ const settingsStore = useSettingsStore();
 const ndvStore = useNDVStore();
 
 const { setAppZIndexes } = useStyles();
+const { toastBottomOffset, askAiFloatingButtonBottomOffset } = useFloatingUiOffsets();
 
 // Initialize undo/redo
 useHistoryHelper(route);
@@ -55,10 +58,6 @@ const defaultLocale = computed(() => {
 	return savedLanguage || rootStore.defaultLocale;
 });
 const isDemoMode = computed(() => route.name === VIEWS.DEMO);
-const showAssistantFloatingButton = computed(
-	() =>
-		assistantStore.canShowAssistantButtonsOnCanvas && !assistantStore.hideAssistantFloatingButton,
-);
 const hasContentFooter = ref(false);
 const appGrid = ref<Element | null>(null);
 
@@ -140,6 +139,9 @@ watch(
 	},
 	{ immediate: true },
 );
+
+useExposeCssVar('--toast-bottom-offset', toastBottomOffset);
+useExposeCssVar('--ask-assistant-floating-button-bottom-offset', askAiFloatingButtonBottomOffset);
 </script>
 
 <template>
@@ -179,7 +181,7 @@ watch(
 				<Modals />
 			</div>
 			<Telemetry />
-			<AskAssistantFloatingButton v-if="showAssistantFloatingButton" />
+			<AskAssistantFloatingButton v-if="assistantStore.isFloatingButtonShown" />
 		</div>
 		<AssistantsHub />
 		<div :id="CODEMIRROR_TOOLTIP_CONTAINER_ELEMENT_ID" />
