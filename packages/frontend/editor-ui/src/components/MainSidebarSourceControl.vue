@@ -7,6 +7,7 @@ import { useSourceControlStore } from '@/stores/sourceControl.store';
 import { useProjectsStore } from '@/stores/projects.store';
 import { useRoute, useRouter } from 'vue-router';
 
+import { N8nButton, N8nIcon, N8nTooltip } from '@n8n/design-system';
 defineProps<{
 	isCollapsed: boolean;
 }>();
@@ -149,7 +150,6 @@ function pullWorkfolder() {
 <style lang="scss" module>
 .sync {
 	padding: var(--spacing-s) var(--spacing-s) var(--spacing-s) var(--spacing-l);
-	margin: var(--spacing-2xs) 0 calc(var(--spacing-2xs) * -1);
 	background: var(--color-background-light);
 	border-top: var(--border-width-base) var(--border-style-base) var(--color-foreground-base);
 	font-size: var(--font-size-2xs);
