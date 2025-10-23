@@ -331,6 +331,6 @@ async def test_cannot_bypass_import_restrictions_via_sys_builtins_spec_leader(br
     task_settings = create_task_settings(code=code, node_mode="all_items")
     await broker.send_task(task_id=task_id, task_settings=task_settings)
     error_msg = await wait_for_task_error(broker, task_id)
-
+    
     assert error_msg["taskId"] == task_id
     assert "error" in error_msg
