@@ -5,7 +5,7 @@ import { ref, computed, onMounted } from 'vue';
 import { N8nButton, N8nInput, N8nInputLabel, N8nTooltip } from '@n8n/design-system';
 import { useI18n } from '@n8n/i18n';
 import { useToast } from '@/composables/useToast';
-import { useNDVStore } from '@/stores/ndv.store';
+import { useNDVStore } from '@/features/nodes/ndv/ndv.store';
 import {
 	getParentNodes,
 	generateCodeForAiTransform,
@@ -329,7 +329,7 @@ async function updateCursorPositionOnMouseMove(event: MouseEvent, activeDrop: bo
 	line-height: 1.2;
 }
 .droppable {
-	border: 1.5px dashed var(--color-ndv-droppable-parameter) !important;
+	border: 1.5px dashed var(--ndv--droppable-parameter--color) !important;
 }
 .activeDrop {
 	border: 1.5px solid var(--color--success) !important;
@@ -337,7 +337,7 @@ async function updateCursorPositionOnMouseMove(event: MouseEvent, activeDrop: bo
 }
 .disabled {
 	.meta {
-		background-color: var(--fill-disabled);
+		background-color: var(--input--color--background--disabled);
 	}
 }
 </style>

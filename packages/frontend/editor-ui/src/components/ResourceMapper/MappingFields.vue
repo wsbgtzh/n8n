@@ -14,7 +14,7 @@ import ParameterIssues from '@/components//ParameterIssues.vue';
 import ParameterOptions from '@/components//ParameterOptions.vue';
 import { computed } from 'vue';
 import { i18n as locale, useI18n } from '@n8n/i18n';
-import { useNDVStore } from '@/stores/ndv.store';
+import { useNDVStore } from '@/features/nodes/ndv/ndv.store';
 import {
 	fieldCannotBeDeleted,
 	isMatchingField,
@@ -462,7 +462,7 @@ defineExpose({
 		}
 		input,
 		input:focus {
-			--input-border-color: var(--color--danger);
+			--input--border-color: var(--color--danger);
 			border-color: var(--color--danger);
 		}
 	}

@@ -8,7 +8,7 @@ import { useI18n } from '@n8n/i18n';
 import type { IUpdateInformation } from '@/Interface';
 import CollectionParameter from '@/components/CollectionParameter.vue';
 import ParameterInputFull from '@/components/ParameterInputFull.vue';
-import { useNDVStore } from '@/stores/ndv.store';
+import { useNDVStore } from '@/features/nodes/ndv/ndv.store';
 import { storeToRefs } from 'pinia';
 
 import { N8nButton, N8nIcon, N8nInputLabel, N8nText } from '@n8n/design-system';
@@ -197,8 +197,8 @@ const valueChanged = (parameterData: IUpdateInformation) => {
 <style scoped lang="scss">
 .duplicate-parameter {
 	:deep(.button) {
-		--button-background-color: var(--color--background);
-		--button-border-color: var(--color--foreground);
+		--button--color--background: var(--color--background);
+		--button--border-color: var(--color--foreground);
 	}
 
 	:deep(.duplicate-parameter-item) {
