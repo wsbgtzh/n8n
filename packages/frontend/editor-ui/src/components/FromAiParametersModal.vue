@@ -136,13 +136,14 @@ const getMCPTools = async (newNode: INode, newSelectedTool: string): Promise<IFo
 					typeof value === 'object' && 'type' in value && typeof value.type === 'string'
 						? value.type
 						: 'text';
-
+				
+				const mapType = mapTypes[type] ?? mapTypes['string'];
 				result.push({
 					name: 'query.' + propertyName,
 					initialValue: '',
 					properties: {
 						label: propertyName,
-						type: mapTypes[type].inputType,
+						type: mapType.inputType,
 						required: true,
 					},
 				});
